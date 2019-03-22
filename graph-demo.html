@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/echarts.js"></script>
+    <script src="js/jquery-1.4.4.min.js"></script>
+</head>
+<body>
+<div id="main" style="margin-top: 1%;width: 100%;"></div>
+<script type="text/javascript">
+    var dataSet = [];
+
+    $(document).ready(function () {
+        let height = $(document).height();
+        $("#main").css('height', height);
+        init_data_set();
+        init_echarts("person");
+    });
+
+    function init_data_set() {
+        dataSet["person"] = {
+            name: "人",
+            type: "tree",
+            data: [{
+                name: "人",
+                label: {
+                    normal: {
+                        backgroundColor: '#725bb8'
+                    }
+                },
+                children: [
+                    {
+                        name: "子类"
+                    },
+                    {
+                        name: "属性"
+                    }
+                ]
+            }]
+        };
+    }
+
+    function createOption(data) {
+        console.log(JSON.stringify(data));
+        let option = {
+            backgroundColor: '#02246d',
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}'
+            },
+            series: [{
+                type: data.type,
+                name: data.name,
+                data: data.data,
+                /*expandAndCollapse: true,
+                animationDuration: 550,
+                animationDurationUpdate: 750*/
+            }
+            ]
+        };
+        if (data.type === "tree") {
+            option.series[0].top = '1%';
+            option.series[0].right = '50%';
+            option.series[0].symbolSize = 1;
+            option.series[0].initialTreeDepth = 10;
+            option.series[0].label = {
+                normal: {
+                    position: 'center',
+                    verticalAlign: 'middle',
+                    align: 'left',
+                    backgroundColor: '#7049f0',
+                    color: '#fff',
+                    padding: 3,
+                    formatter: [
+                        '{box|{b}}'
+                    ].join('\n'),
+                    rich: {
+                        box: {
+                            height: 30,
+                            color: '#fff',
+                            padding: [0, 5],
+                            align: 'center'
+                        }
+                    }
+                }
+            };
+        }
+        return option;
+    }
+
+    function init_echarts(type) {
+        var myChart = echarts.init(document.getElementById("main"));
+        myChart.showLoading();
+        let data = dataSet[type];
+        myChart.hideLoading();
+        let option = createOption(data);
+        myChart.setOption(option);
+    }
+</script>
+</body>
+</html>
