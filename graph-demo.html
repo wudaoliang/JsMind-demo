@@ -10,16 +10,21 @@
 <div id="main" style="margin-top: 1%;width: 100%;"></div>
 <script type="text/javascript">
     var dataSet = [];
-
+    var center_size = 30;
+    var edge_size = 15;
     $(document).ready(function () {
-        let height = $(document).height();
+        let height = window.screen.availHeight;
         $("#main").css('height', height);
+        let myChart = echarts.init(document.getElementById("main"));
         init_data_set();
-        init_echarts("person");
+        init_echarts(myChart, "人");
+        myChart.on("dblclick", function (params) {
+            init_echarts(myChart, params.data.name);
+        });
     });
 
     function init_data_set() {
-        dataSet["person"] = {
+        dataSet["人"] = {
             name: "人",
             type: "tree",
             data: [{
@@ -39,6 +44,208 @@
                 ]
             }]
         };
+        dataSet["属性"] = {
+            name:"属性",
+            type:"graph",
+            data: [
+                {
+                    name: "属性",
+                    symbolSize: center_size,
+                    draggable: true,
+                },
+                {
+                    name: "姓名",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "身份证号",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "性别",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "出生日期",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "民族",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "婚姻状况",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "文化程度",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "身高",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "户籍地址",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "居住地址",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "工作单位",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "联系电话",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "固定电话",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "宗教信仰",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "政治面貌",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "职业",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "行政区划",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "迁入地址",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "国籍",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "毕业院校",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "出生医学证号",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name: "准驾车型",
+                    symbolSize:edge_size,
+                    draggable:true
+                }
+            ]
+        };
+        dataSet["子类"] = {
+            name:"子类",
+            type:"graph",
+            data:[
+                {
+                    name:"子类",
+                    symbolSize:center_size,
+                    draggable:true
+                },
+                {
+                    name:"儿童",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"孕妇",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"医护人员",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"死亡人员",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"被调查者",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"失信被执行人",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"当事人",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"遗属",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"患者",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"流动人员",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"民警",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"法人",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"负责人",
+                    symbolSize:edge_size,
+                    draggable:true
+                },
+                {
+                    name:"管辖人",
+                    symbolSize:edge_size,
+                    draggable:true
+                }
+            ]
+        }
     }
 
     function createOption(data) {
@@ -46,6 +253,7 @@
         let option = {
             backgroundColor: '#02246d',
             tooltip: {
+                show:false,
                 trigger: 'item',
                 formatter: '{b}'
             },
@@ -53,49 +261,83 @@
                 type: data.type,
                 name: data.name,
                 data: data.data,
-                /*expandAndCollapse: true,
+                roam: true,
+                expandAndCollapse: true,
                 animationDuration: 550,
-                animationDurationUpdate: 750*/
+                animationDurationUpdate: 750,
+                itemStyle : {
+                    color:"#7049f0",
+                    borderColor:"#7049f0"
+                }
             }
             ]
         };
         if (data.type === "tree") {
             option.series[0].top = '1%';
-            option.series[0].right = '50%';
-            option.series[0].symbolSize = 1;
+            option.series[0].left = '10%';
+            option.series[0].bottom = '1%';
+            option.series[0].right = '60%';
+            option.series[0].symbol = "roundRect";
+            option.series[0].symbolSize = [80, 30];
             option.series[0].initialTreeDepth = 10;
             option.series[0].label = {
                 normal: {
-                    position: 'center',
+                    position: 'inside',
                     verticalAlign: 'middle',
-                    align: 'left',
-                    backgroundColor: '#7049f0',
-                    color: '#fff',
-                    padding: 3,
-                    formatter: [
-                        '{box|{b}}'
-                    ].join('\n'),
-                    rich: {
-                        box: {
-                            height: 30,
-                            color: '#fff',
-                            padding: [0, 5],
-                            align: 'center'
-                        }
+                    align: 'center',
+                    color: '#fff'
+                }
+            };
+            option.series[0].leaves = {
+                label: {
+                    normal: {
+                        color:'#fff',
+                        position: 'inside',
+                        verticalAlign: 'middle',
+                        align: 'center',
                     }
                 }
             };
+        } else if(data.type === "graph") {
+            option.series[0].layout = 'force';
+            option.series[0].force = {
+                repulsion: 600,
+                layoutAnimation:false
+            };
+            let links = [];
+            for(let i = 1; i < data.data.length; i++) {
+                links[i - 1] = {
+                    source:data.data[0].name,
+                    target:data.data[i].name
+                };
+            }
+            option.series[0].links = links;
+            option.series[0].focusNodeAdjacency = true;
+            option.series[0].label = {
+                normal: {
+                    show: true,
+                    position: 'top',
+                    color: '#fff'
+                }
+            };
+            option.series[0].lineStyle = {
+                normal: {
+                    color: 'source',
+                    curveness: 0.1,
+                    type: "solid"
+                }
+            }
         }
         return option;
     }
 
-    function init_echarts(type) {
-        var myChart = echarts.init(document.getElementById("main"));
-        myChart.showLoading();
-        let data = dataSet[type];
-        myChart.hideLoading();
-        let option = createOption(data);
-        myChart.setOption(option);
+    function init_echarts(myChart, name) {
+        let data = dataSet[name];
+        if(data) {
+            let option = createOption(data);
+            myChart.clear();
+            myChart.setOption(option);
+        }
     }
 </script>
 </body>
