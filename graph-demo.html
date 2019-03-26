@@ -3,30 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="css/Global.css" />
+    <link rel="stylesheet" type="text/css" href="css/Main.css" />
+    <link rel="stylesheet" type="text/css" href="css/iconfont.css" />
     <script src="js/echarts.js"></script>
     <script src="js/jquery-1.4.4.min.js"></script>
 </head>
 <body>
-<div id="main" style="margin-top: 1%;width: 100%;"></div>
+<div class="base_box" style="background-color: black">
+    <div class="Useroperations"></div>
+    <div id="main" style="width: 100%;"></div>
+</div>
 <script type="text/javascript">
     var dataSet = [];
-    var center_size = 30;
-    var edge_size = 15;
+    var center_size = 40;
+    var edge_size = 15.28;
+    var myChart;
     $(document).ready(function () {
         let height = window.screen.availHeight;
         $("#main").css('height', height);
-        let myChart = echarts.init(document.getElementById("main"));
+        myChart = echarts.init(document.getElementById("main"));
         init_data_set();
-        init_echarts(myChart, "人");
+        load_page("人");
         myChart.on("dblclick", function (params) {
-            init_echarts(myChart, params.data.name);
+            load_page(params.data.name);
         });
     });
+
+    function load_page(name) {
+        let data = getData(name);
+        if(!!data) {
+            create_bread_crumb(data);
+            init_echarts(data);
+        }
+    }
+
+    function getData(name) {
+        return dataSet[name];
+    }
+
+    function init_echarts(data) {
+        myChart.clear();
+        myChart.setOption(create_option(data));
+    }
+
+    function create_option(data) {
+        let option = {
+            backgroundColor: '#02246d',
+            title:{
+                show: true,
+                text: data.text,
+                top: "1%",
+                left: "left",
+                textStyle: {
+                    color: '#fff'
+                }
+            },
+            tooltip: {
+                show:true,
+                trigger: 'item',
+                formatter: '{b}'
+            },
+            series: [{
+                type: data.type,
+                name: data.name,
+                data: data.data,
+                roam: true,
+                expandAndCollapse: true,
+                animationDuration: 550,
+                animationDurationUpdate: 750,
+                itemStyle : {
+                    color:"#7049f0",
+                    borderColor:"#7049f0"
+                }
+            }
+            ]
+        };
+        if (data.type === "tree") {
+            option.series[0].top = '1%';
+            option.series[0].left = '10%';
+            option.series[0].bottom = '20%';
+            option.series[0].right = '50%';
+            option.series[0].symbol = "roundRect";
+            option.series[0].symbolSize = [80, 30];
+            option.series[0].initialTreeDepth = 10;
+            option.series[0].label = {
+                normal: {
+                    position: 'inside',
+                    verticalAlign: 'middle',
+                    align: 'center',
+                    color: '#fff'
+                }
+            };
+            option.series[0].leaves = {
+                label: {
+                    normal: {
+                        color:'#fff',
+                        position: 'inside',
+                        verticalAlign: 'middle',
+                        align: 'center',
+                    }
+                }
+            };
+        } else if(data.type === "graph") {
+            option.series[0].top = '5%';
+            option.series[0].layout = 'force';
+            option.series[0].force = {
+                repulsion: 1047.12,
+                layoutAnimation:false
+            };
+            let links = [];
+            for(let i = 1; i < data.data.length; i++) {
+                links[i - 1] = {
+                    source:data.data[0].name,
+                    target:data.data[i].name
+                };
+            }
+            option.series[0].links = links;
+            option.series[0].focusNodeAdjacency = true;
+            option.series[0].label = {
+                normal: {
+                    show: true,
+                    position: 'top',
+                    color: '#fff'
+                }
+            };
+            option.series[0].lineStyle = {
+                normal: {
+                    color: '#1DB0B8',
+                    curveness: 0.1,
+                    type: "solid",
+                    width:1.5
+                }
+            };
+            console.log(option.series[0].data[0]);
+            for(let i = 0; i < option.series[0].data.length; i++) {
+                if (i === 0) {
+                    option.series[0].data[i].symbol = 'roundRect';
+                } else {
+                    option.series[0].data[i].symbol = 'diamond';
+                    option.series[0].data[i].itemStyle = {
+                        color: "#37C6C0"
+                    };
+                }
+            }
+        }
+        return option;
+    }
+    
+    function create_bread_crumb(data) {
+        var pathName = [];
+        var index = 0;
+        $(".Useroperations").remove();
+        $(".base_box").prepend("<div class='Useroperations' style='background-color: white'></div>");
+        while(data) {
+            pathName[index++] = data.name;
+            data = dataSet[data.parentName];
+        }
+        for(index = pathName.length - 1; index >= 0; index--) {
+            if(index === pathName.length - 1) {
+                $(".Useroperations").append("<a href='#' onclick='load_page(this.text)' style='margin-left: 1%'>" + pathName[index] + "</a>");
+            } else {
+                $(".Useroperations").append("<a href='#' onclick='load_page(this.text)'>" + pathName[index] + "</a>");
+            }
+            if(index > 0) {
+                $(".Useroperations").append("<i class='iconfont'>&#xe6a4;</i>");
+            }
+        }
+    }
+
 
     function init_data_set() {
         dataSet["人"] = {
             name: "人",
+            text: "人的数据项分析",
             type: "tree",
+            parentName: null,
             data: [{
                 name: "人",
                 label: {
@@ -46,7 +198,9 @@
         };
         dataSet["属性"] = {
             name:"属性",
+            text: "人的属性的数据项分析",
             type:"graph",
+            parentName:"人",
             data: [
                 {
                     name: "属性",
@@ -167,7 +321,9 @@
         };
         dataSet["子类"] = {
             name:"子类",
+            text: "人的子类的数据项分析",
             type:"graph",
+            parentName:"人",
             data:[
                 {
                     name:"子类",
@@ -245,98 +401,6 @@
                     draggable:true
                 }
             ]
-        }
-    }
-
-    function createOption(data) {
-        console.log(JSON.stringify(data));
-        let option = {
-            backgroundColor: '#02246d',
-            tooltip: {
-                show:false,
-                trigger: 'item',
-                formatter: '{b}'
-            },
-            series: [{
-                type: data.type,
-                name: data.name,
-                data: data.data,
-                roam: true,
-                expandAndCollapse: true,
-                animationDuration: 550,
-                animationDurationUpdate: 750,
-                itemStyle : {
-                    color:"#7049f0",
-                    borderColor:"#7049f0"
-                }
-            }
-            ]
-        };
-        if (data.type === "tree") {
-            option.series[0].top = '1%';
-            option.series[0].left = '10%';
-            option.series[0].bottom = '1%';
-            option.series[0].right = '60%';
-            option.series[0].symbol = "roundRect";
-            option.series[0].symbolSize = [80, 30];
-            option.series[0].initialTreeDepth = 10;
-            option.series[0].label = {
-                normal: {
-                    position: 'inside',
-                    verticalAlign: 'middle',
-                    align: 'center',
-                    color: '#fff'
-                }
-            };
-            option.series[0].leaves = {
-                label: {
-                    normal: {
-                        color:'#fff',
-                        position: 'inside',
-                        verticalAlign: 'middle',
-                        align: 'center',
-                    }
-                }
-            };
-        } else if(data.type === "graph") {
-            option.series[0].layout = 'force';
-            option.series[0].force = {
-                repulsion: 600,
-                layoutAnimation:false
-            };
-            let links = [];
-            for(let i = 1; i < data.data.length; i++) {
-                links[i - 1] = {
-                    source:data.data[0].name,
-                    target:data.data[i].name
-                };
-            }
-            option.series[0].links = links;
-            option.series[0].focusNodeAdjacency = true;
-            option.series[0].label = {
-                normal: {
-                    show: true,
-                    position: 'top',
-                    color: '#fff'
-                }
-            };
-            option.series[0].lineStyle = {
-                normal: {
-                    color: 'source',
-                    curveness: 0.1,
-                    type: "solid"
-                }
-            }
-        }
-        return option;
-    }
-
-    function init_echarts(myChart, name) {
-        let data = dataSet[name];
-        if(data) {
-            let option = createOption(data);
-            myChart.clear();
-            myChart.setOption(option);
         }
     }
 </script>
